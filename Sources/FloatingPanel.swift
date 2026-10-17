@@ -2,8 +2,8 @@ import AppKit
 import Combine
 import SwiftUI
 
-// El altar flotando sobre el escritorio. Es un NSPanel de AppKit porque SwiftUI, con el SDK
-// de macOS 13, no deja hacer ventanas sin borde, transparentes y siempre encima.
+// El altar sobre el escritorio. Es un NSPanel de AppKit porque SwiftUI, con el SDK de macOS 13,
+// no deja hacer ventanas sin borde, transparentes y en un nivel de ventana elegido.
 final class FloatingAltar {
     /// Con este nombre AppKit guarda solo la posición de la ventana en UserDefaults.
     static let nombreDePosicion = "AltarFlotante"
@@ -36,14 +36,17 @@ final class FloatingAltar {
                             // nonactivatingPanel: hacer clic en el altar no le quita el foco a la app en la que estás.
                             styleMask: [.borderless, .nonactivatingPanel],
                             backing: .buffered, defer: false)
-        panel.level = .floating
+        // Pegado al fondo, como un widget: un nivel arriba de los iconos del escritorio (para que se
+        // pueda arrastrar) y debajo de todas las ventanas normales.
+        panel.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.desktopIconWindow)) + 1)
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
-        // Que se vea en todos los escritorios (Spaces), también junto a apps en pantalla completa.
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        // Que se vea en todos los escritorios (Spaces) y se quede quieto en Mission Control y al
+        // mostrar el escritorio, como los iconos.
+        panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
 
         let vista = VistaArrastrable(rootView: FloatingAltarView(store: store))
         vista.ocultar = { [weak store] in store?.config.flotante = false }

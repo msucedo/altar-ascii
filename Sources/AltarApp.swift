@@ -1,3 +1,4 @@
+import ServiceManagement
 import SwiftUI
 
 // Punto de entrada. MenuBarExtra pone el icono en la barra de menú; con el estilo .window
@@ -29,11 +30,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct PanelView: View {
     @ObservedObject var store: AltarStore
     @State private var configurando = false
+    // Si la app abre al iniciar sesión lo sabe el sistema, no la configuración del altar,
+    // así que se le pregunta a SMAppService en vez de guardarlo aparte.
+    @State private var alIniciarSesion = SMAppService.mainApp.status == .enabled
+    @State private var errorDeInicio: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Altar de muertos")
-                .font(.headline)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Altar de muertos")
+                    .font(.headline)
+                Text(Calendario.aviso())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             AltarView(config: store.config)
                 .frame(maxWidth: .infinity)
             Toggle("Mostrar en el escritorio", isOn: $store.config.flotante)
@@ -43,10 +53,38 @@ struct PanelView: View {
                     .padding(.top, 8)
             }
             Divider()
-            Button("Salir") { NSApplication.shared.terminate(nil) }
-                .keyboardShortcut("q")
+            HStack {
+                Toggle("Abrir al iniciar sesión", isOn: Binding(get: { alIniciarSesion }, set: cambiarInicio))
+                    .toggleStyle(.checkbox)
+                Spacer()
+                Button("Salir") { NSApplication.shared.terminate(nil) }
+                    .keyboardShortcut("q")
+            }
+            if let errorDeInicio {
+                Text(errorDeInicio)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
         }
         .padding(16)
         .frame(width: 380)
+    }
+
+    private func cambiarInicio(_ activar: Bool) {
+        do {
+            if activar {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            errorDeInicio = nil
+        } catch {
+            errorDeInicio = "No se pudo cambiar: \(error.localizedDescription)"
+        }
+        // macOS puede pedir que se apruebe en Ajustes > General > Ítems de inicio.
+        if SMAppService.mainApp.status == .requiresApproval {
+            errorDeInicio = "Apruébalo en Ajustes del Sistema > General > Ítems de inicio."
+        }
+        alIniciarSesion = SMAppService.mainApp.status == .enabled
     }
 }
