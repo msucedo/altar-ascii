@@ -30,6 +30,11 @@ struct StoreCheck {
         let parcial = AltarStore(defaults: defaults).config
         esperar(parcial.niveles == .dos && parcial.ofrendas == AltarConfig().ofrendas, "un campo faltante toma su valor por omisión")
 
+        // Así quedaba guardado antes de que existiera el modo flotante.
+        defaults.set(#"{"niveles":7,"nombres":["Ana"],"ofrendas":["velas"]}"#, forKey: AltarStore.clave)
+        let anterior = AltarStore(defaults: defaults).config
+        esperar(anterior.nombres == ["Ana"] && !anterior.flotante, "lo guardado antes del modo flotante se sigue leyendo")
+
         defaults.removePersistentDomain(forName: suite)
         print(fallos == 0 ? "ok" : "\(fallos) fallos")
         exit(fallos == 0 ? 0 : 1)

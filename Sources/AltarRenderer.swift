@@ -7,6 +7,8 @@ struct AltarConfig: Equatable, Codable {
     var niveles: Niveles = .tres
     var ofrendas: Set<Ofrenda> = Set(Ofrenda.allCases)
     var nombres: [String] = []
+    /// Si el altar también se muestra flotando sobre el escritorio.
+    var flotante = false
 }
 
 extension AltarConfig {
@@ -18,6 +20,7 @@ extension AltarConfig {
         niveles = try c.decodeIfPresent(Niveles.self, forKey: .niveles) ?? base.niveles
         ofrendas = try c.decodeIfPresent(Set<Ofrenda>.self, forKey: .ofrendas) ?? base.ofrendas
         nombres = try c.decodeIfPresent([String].self, forKey: .nombres) ?? base.nombres
+        flotante = try c.decodeIfPresent(Bool.self, forKey: .flotante) ?? base.flotante
     }
 }
 

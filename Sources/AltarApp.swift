@@ -4,28 +4,49 @@ import SwiftUI
 // el contenido se abre como un panel translúcido, igual que el Centro de Control.
 @main
 struct AltarApp: App {
-    // El store guarda la configuración cada vez que cambia, y la recupera al abrir la app.
-    @StateObject private var store = AltarStore()
-    @State private var configurando = false
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegado
 
     var body: some Scene {
         MenuBarExtra("Altar", systemImage: "flame") {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Altar de muertos")
-                    .font(.headline)
-                AltarView(config: store.config)
-                    .frame(maxWidth: .infinity)
-                DisclosureGroup("Configurar", isExpanded: $configurando) {
-                    SettingsView(config: $store.config)
-                        .padding(.top, 8)
-                }
-                Divider()
-                Button("Salir") { NSApplication.shared.terminate(nil) }
-                    .keyboardShortcut("q")
-            }
-            .padding(16)
-            .frame(width: 380)
+            PanelView(store: delegado.store)
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+/// El store vive en el delegado y no en la App, porque la ventana flotante tiene que aparecer
+/// al abrir la app, aunque nunca se haya abierto el panel de la barra de menú.
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    // El store guarda la configuración cada vez que cambia, y la recupera al abrir la app.
+    let store = AltarStore()
+    private var flotante: FloatingAltar?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        flotante = FloatingAltar(store: store)
+    }
+}
+
+struct PanelView: View {
+    @ObservedObject var store: AltarStore
+    @State private var configurando = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Altar de muertos")
+                .font(.headline)
+            AltarView(config: store.config)
+                .frame(maxWidth: .infinity)
+            Toggle("Mostrar en el escritorio", isOn: $store.config.flotante)
+                .toggleStyle(.switch)
+            DisclosureGroup("Configurar", isExpanded: $configurando) {
+                SettingsView(config: $store.config)
+                    .padding(.top, 8)
+            }
+            Divider()
+            Button("Salir") { NSApplication.shared.terminate(nil) }
+                .keyboardShortcut("q")
+        }
+        .padding(16)
+        .frame(width: 380)
     }
 }
