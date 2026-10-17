@@ -1,6 +1,6 @@
 # Altar
 
-Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac.
+Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac, para honrar la memoria de tus seres queridos.
 
 ![El altar animado: velas que parpadean, humo de copal y papel picado con viento](docs/altar.gif)
 
