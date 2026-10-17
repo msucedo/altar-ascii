@@ -34,6 +34,13 @@ enum AltarRenderer {
     /// Un escalón vacío conserva al menos este alto.
     static let filasMinimas = 2
 
+    /// Fotogramas tras los que toda la animación se repite. Cada ciclo de las piezas lo divide:
+    /// velas y flores 8, humo, agua y pétalos 4, viento 12, parpadeo 24.
+    static let ciclo = 24
+
+    /// El viento sopla 3 de cada 12 fotogramas; mueve el papel picado y las flores a la vez.
+    static func hayViento(_ frame: Int) -> Bool { frame % 12 >= 9 }
+
     /// `frame` avanza unas cuatro veces por segundo; cada pieza animada decide qué dibujo le toca.
     static func render(_ config: AltarConfig, frame: Int = 0) -> [String] {
         let n = config.niveles.rawValue
@@ -46,8 +53,7 @@ enum AltarRenderer {
 
         var lineas: [String] = []
         if config.ofrendas.contains(.papelPicado) {
-            // El viento sopla un rato cada pocos segundos.
-            lineas += Arte.papelPicado(ancho: ancho - 2, viento: frame % 12 >= 9).map(centrar)
+            lineas += Arte.papelPicado(ancho: ancho - 2, viento: hayViento(frame)).map(centrar)
         }
         lineas.append(centrar(" " + repetir("_", anchos[0] - 2) + " "))
         for (k, w) in anchos.enumerated() {
@@ -65,7 +71,7 @@ enum AltarRenderer {
             }
         }
         if config.ofrendas.contains(.cempasuchil) {
-            lineas += Arte.caminoDePetalos.map(centrar)
+            lineas += Arte.caminoDePetalos(frame: frame).map(centrar)
         }
         return lineas
     }
@@ -96,12 +102,15 @@ enum AltarRenderer {
         }
         if tiene(.cempasuchil) {
             for nivel in 1..<n {
-                lugares += [(nivel, 0, Arte.flor), (nivel, 10, Arte.flor)]
+                // Cada escalón gira sus flores en otro momento; el viento las inclina a todas juntas.
+                let viento = hayViento(frame)
+                lugares += [(nivel, 0, Arte.flor(frame: frame + nivel * 3, viento: viento)),
+                            (nivel, 10, Arte.flor(frame: frame + nivel * 3 + 4, viento: viento))]
             }
         }
-        if tiene(.agua) { lugares.append((abajo, 2, Arte.agua)) }
+        if tiene(.agua) { lugares.append((abajo, 2, Arte.agua(frame: frame))) }
         if tiene(.pan) { lugares.append((nivelPan, 3, Arte.pan)) }
-        if tiene(.calaveritas) { lugares.append((nivelCalaveritas, 5, Arte.calaverita)) }
+        if tiene(.calaveritas) { lugares.append((nivelCalaveritas, 5, Arte.calaverita(frame: frame))) }
         if tiene(.comida) { lugares.append((nivelComida, 6, Arte.comida)) }
         if tiene(.copal) { lugares.append((abajo, 7, Arte.copal(frame: frame))) }
         if tiene(.sal) { lugares.append((abajo, 8, Arte.sal)) }
@@ -116,10 +125,25 @@ enum AltarRenderer {
     /// Sin nombres se pone un retrato vacío, para que el lugar se vea.
     static func nombresLimpios(_ nombres: [String]) -> [String] {
         let limpios = nombres
-            .map { String($0.trimmingCharacters(in: .whitespaces).prefix(Arte.largoNombre)) }
+            .map(limpiarNombre)
             .filter { !$0.isEmpty }
             .prefix(Arte.maxNombres)
         return limpios.isEmpty ? ["    "] : Array(limpios)
+    }
+
+    /// Deja solo letras latinas (con acentos, ñ y diéresis), números, signos y espacios, recortado al
+    /// largo que cabe en un retrato. Un emoji o un carácter chino ocupan dos columnas en la letra
+    /// monoespaciada aunque cuenten como uno, y descuadrarían el altar.
+    static func limpiarNombre(_ nombre: String) -> String {
+        let permitidos = nombre.unicodeScalars.filter {
+            // Sin U+00A0 (espacio duro) ni U+00AD (guion suave, invisible).
+            (0x20...0x7E).contains($0.value) || (0xA1...0xAC).contains($0.value)
+                || (0xAE...0x24F).contains($0.value) || (0x300...0x36F).contains($0.value)
+        }
+        // Juntar los espacios que quedan donde estaba lo que se quitó.
+        let palabras = String(String.UnicodeScalarView(permitidos)).split(separator: " ")
+        return String(palabras.joined(separator: " ").prefix(Arte.largoNombre))
+            .trimmingCharacters(in: .whitespaces)
     }
 
     /// Acomoda las piezas en filas del ancho interior del escalón, repartiendo el espacio libre

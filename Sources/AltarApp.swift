@@ -9,7 +9,7 @@ struct AltarApp: App {
 
     var body: some Scene {
         MenuBarExtra("Altar", systemImage: "flame") {
-            PanelView(store: delegado.store)
+            PanelView(store: delegado.store, animacion: delegado.animacion)
         }
         .menuBarExtraStyle(.window)
     }
@@ -20,16 +20,21 @@ struct AltarApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     // El store guarda la configuración cada vez que cambia, y la recupera al abrir la app.
     let store = AltarStore()
+    let animacion = Animacion()
     private var flotante: FloatingAltar?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        flotante = FloatingAltar(store: store)
+        flotante = FloatingAltar(store: store, animacion: animacion)
     }
 }
 
 struct PanelView: View {
     @ObservedObject var store: AltarStore
-    @State private var configurando = false
+    @ObservedObject var animacion: Animacion
+    /// Si están a la vista las opciones de abajo del altar. Empieza cerrado y se recuerda.
+    @AppStorage("panelAbierto") private var abierto = false
+    @State private var altoAltar: CGFloat = 0
+    @State private var altoOpciones: CGFloat = 0
     // Si la app abre al iniciar sesión lo sabe el sistema, no la configuración del altar,
     // así que se le pregunta a SMAppService en vez de guardarlo aparte.
     @State private var alIniciarSesion = SMAppService.mainApp.status == .enabled
@@ -44,21 +49,48 @@ struct PanelView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            AltarView(config: store.config)
+            AltarView(config: store.config, animar: animacion.pantallaActiva)
                 .frame(maxWidth: .infinity)
+                .background(medirAlto { altoAltar = $0 })
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { abierto.toggle() }
+            } label: {
+                Image(systemName: "chevron.down")
+                    .rotationEffect(.degrees(abierto ? 180 : 0))
+                    .frame(maxWidth: .infinity, minHeight: 18)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .help(abierto ? "Ocultar opciones" : "Mostrar opciones")
+
+            if abierto {
+                // Las opciones van en un scroll que mide lo mismo que su contenido, salvo que no
+                // quepan en la pantalla junto con el altar: entonces se recorta y se desplaza.
+                ScrollView {
+                    opciones
+                        .background(medirAlto { altoOpciones = $0 })
+                }
+                .frame(height: min(altoOpciones, altoMaximoOpciones))
+            }
+        }
+        // Salir sigue funcionando con ⌘Q aunque el botón esté oculto.
+        .background(Button("") { NSApplication.shared.terminate(nil) }.keyboardShortcut("q").hidden())
+        .padding(16)
+        .frame(width: 380)
+    }
+
+    private var opciones: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Toggle("Mostrar en el escritorio", isOn: $store.config.flotante)
                 .toggleStyle(.switch)
-            DisclosureGroup("Configurar", isExpanded: $configurando) {
-                SettingsView(config: $store.config)
-                    .padding(.top, 8)
-            }
+            Divider()
+            SettingsView(config: $store.config)
             Divider()
             HStack {
                 Toggle("Abrir al iniciar sesión", isOn: Binding(get: { alIniciarSesion }, set: cambiarInicio))
                     .toggleStyle(.checkbox)
                 Spacer()
                 Button("Salir") { NSApplication.shared.terminate(nil) }
-                    .keyboardShortcut("q")
             }
             if let errorDeInicio {
                 Text(errorDeInicio)
@@ -66,8 +98,24 @@ struct PanelView: View {
                     .foregroundStyle(.red)
             }
         }
-        .padding(16)
-        .frame(width: 380)
+        // Un poco de aire a la derecha para que la barra del scroll no tape los controles.
+        .padding(.trailing, 4)
+    }
+
+    /// Lo que cabe debajo del altar: el alto visible de la pantalla menos el altar, el título, la
+    /// flecha y los márgenes del panel.
+    private var altoMaximoOpciones: CGFloat {
+        let pantalla = NSScreen.main?.visibleFrame.height ?? 800
+        return max(140, pantalla - altoAltar - 140)
+    }
+
+    /// Informa el alto que ocupa una vista, sin cambiar cómo se dibuja.
+    private func medirAlto(_ alCambiar: @escaping (CGFloat) -> Void) -> some View {
+        GeometryReader { geometria in
+            Color.clear
+                .onAppear { alCambiar(geometria.size.height) }
+                .onChange(of: geometria.size.height) { alCambiar($0) }
+        }
     }
 
     private func cambiarInicio(_ activar: Bool) {

@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var config: AltarConfig
     @State private var nuevoNombre = ""
+    @State private var avisoNombre: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -50,6 +51,11 @@ struct SettingsView: View {
                         .disabled(nuevoNombre.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            if let avisoNombre {
+                Text(avisoNombre)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             if !config.ofrendas.contains(.retratos) && !config.nombres.isEmpty {
                 Text("Activa los retratos para ver los nombres en el altar.")
                     .font(.caption)
@@ -66,10 +72,17 @@ struct SettingsView: View {
     }
 
     private func agregar() {
-        let nombre = nuevoNombre.trimmingCharacters(in: .whitespaces)
-        guard !nombre.isEmpty, config.nombres.count < Arte.maxNombres else { return }
-        // Se guarda recortado al largo que cabe en el retrato, para que la lista muestre lo mismo que el altar.
-        config.nombres.append(String(nombre.prefix(Arte.largoNombre)))
+        let escrito = nuevoNombre.trimmingCharacters(in: .whitespaces)
+        guard !escrito.isEmpty, config.nombres.count < Arte.maxNombres else { return }
+        // Se guarda ya limpio y recortado, para que la lista muestre lo mismo que el altar.
+        let nombre = AltarRenderer.limpiarNombre(escrito)
+        guard !nombre.isEmpty else {
+            avisoNombre = "Ese nombre no tiene letras que quepan en el altar (los emoji no se pueden dibujar en ASCII)."
+            return
+        }
+        let quitado = nombre != String(escrito.prefix(Arte.largoNombre)).trimmingCharacters(in: .whitespaces)
+        avisoNombre = quitado ? "Se ajustó a \"\(nombre)\" para que quepa en el retrato." : nil
+        config.nombres.append(nombre)
         nuevoNombre = ""
     }
 }

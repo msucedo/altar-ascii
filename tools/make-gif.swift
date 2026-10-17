@@ -8,9 +8,8 @@ import UniformTypeIdentifiers
 
 @main
 struct MakeGif {
-    // 24 es el mínimo común múltiplo de los ciclos de las velas (8), el humo (4) y el viento (12),
-    // así el GIF da la vuelta sin que se note el salto.
-    static let fotogramas = 24
+    // Un ciclo completo de la animación: así el GIF da la vuelta sin que se note el salto.
+    static let fotogramas = AltarRenderer.ciclo
     /// El mismo ritmo que AltarView.fotogramasPorSegundo en la app.
     static let fotogramasPorSegundo = 4.0
     static let escala: CGFloat = 2

@@ -62,11 +62,28 @@ enum Arte {
         Pieza([" \(llamas[frame % llamas.count]) ", "| |", "|_|"])
     }
 
-    static let flor = Pieza([" @ ", "\\|/"])
+    /// El cempasúchil: una vez por ciclo la flor "gira" (la @ pasa a *), y con viento se inclina
+    /// hacia el mismo lado al que se recorre el papel picado.
+    static func flor(frame: Int, viento: Bool) -> Pieza {
+        let cabeza = frame % 8 == 7 ? "*" : "@"
+        return viento ? Pieza(["  " + cabeza, " |/"]) : Pieza([" " + cabeza + " ", "\\|/"])
+    }
+
     static let pan = Pieza([" .x. ", "(___)"])
-    static let calaverita = Pieza([" .-. ", "(o.o)", " |=| "])
+    /// Parpadea una vez por ciclo completo. Es en el último fotograma y no en el primero, porque con
+    /// "Reducir movimiento" el altar se queda en el fotograma 0 y saldría siempre con los ojos cerrados.
+    static func calaverita(frame: Int) -> Pieza {
+        Pieza([" .-. ", frame % AltarRenderer.ciclo == AltarRenderer.ciclo - 1 ? "(-.-)" : "(o.o)", " |=| "])
+    }
+
     static let comida = Pieza(["(~~~)", "\\___/"])
-    static let agua = Pieza(["|~|", "|_|"])
+    /// La superficie del agua ondula.
+    static let olas: [Character] = ["~", "-", "~", "="]
+
+    static func agua(frame: Int) -> Pieza {
+        Pieza(["|\(olas[frame % olas.count])|", "|_|"])
+    }
+
     static let sal = Pieza([".:.", "\\_/"])
     /// El humo del copal: cada fila toma la forma que tenía la de abajo un momento antes, así parece que sube.
     static let humo = ["  ~ ", " (  ", "  ) ", " ~  "]
@@ -95,6 +112,12 @@ enum Arte {
         ]
     }
 
-    /// El camino de pétalos que guía a las almas hasta el altar; se abre hacia quien mira.
-    static let caminoDePetalos = ["*.*.*.*", ".*.*.*.*.*.", "*.*.*.*.*.*.*.*"]
+    /// El camino de pétalos que guía a las almas hasta el altar; se abre hacia quien mira. Cada fila
+    /// alterna sus pétalos un paso después que la de abajo, así parece que avanzan hacia el altar.
+    static func caminoDePetalos(frame: Int) -> [String] {
+        [7, 11, 15].enumerated().map { fila, largo in
+            let desfase = (frame / 2 + fila) % 2
+            return String((0..<largo).map { ($0 + desfase) % 2 == 0 ? "*" : "." })
+        }
+    }
 }
