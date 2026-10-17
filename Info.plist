@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>local.altar-ascii</string>
+	<string>com.msucedo.altar</string>
 	<key>CFBundleName</key>
 	<string>Altar</string>
 	<key>CFBundleExecutable</key>

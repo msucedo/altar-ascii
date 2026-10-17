@@ -11,7 +11,7 @@ struct StoreCheck {
             if !ok { fallos += 1 }
         }
 
-        let suite = "local.altar-ascii.prueba"
+        let suite = "com.msucedo.altar.prueba"
         let defaults = UserDefaults(suiteName: suite)!
         defaults.removePersistentDomain(forName: suite)
 

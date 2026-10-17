@@ -1,7 +1,7 @@
 import Foundation
 
 // Guarda la configuración del altar en UserDefaults, como texto JSON, cada vez que cambia.
-// Se puede ver desde la terminal con: defaults read local.altar-ascii altar
+// Se puede ver desde la terminal con: defaults read com.msucedo.altar altar
 final class AltarStore: ObservableObject {
     static let clave = "altar"
 
