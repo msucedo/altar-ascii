@@ -2,33 +2,32 @@
 
 Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac.
 
-```
- o--------------------------------------------o
-  |><| |::| |<>| |**| |><| |::| |<>| |**| |><|
-  \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/
-         ______________________________
-        | .-------------. .----------. |
-        | | Abuela Lupe | | Tío Beto | |
-        | '-------------' '----------' |
-     ___|______________________________|___
-    |      )          .-.          )       |
-    |  @  | |   .x.  (o.o) (~~~)  | |  @   |
-    | \|/ |_|  (___)  |=|  \___/  |_| \|/  |
- ___|______________________________________|___
-|          (           (            )          |
-|    @    | |   |~|     ~    .:.   | |    @    |
-|   \|/   |_|   |_|   \##/   \_/   |_|   \|/   |
-|______________________________________________|
-                    *.*.*.*
-                  .*.*.*.*.*.
-                *.*.*.*.*.*.*.*
-```
+![El altar animado: velas que parpadean, humo de copal y papel picado con viento](docs/altar.gif)
 
 - **Niveles:** 2 (el cielo y la tierra), 3 (con el inframundo) o 7 (los siete pasos hacia el descanso).
 - **Ofrendas:** papel picado, retratos con los nombres de tus seres queridos, velas, cempasúchil, pan de muerto, calaveritas, comida favorita, agua, sal y copal. Cada una se puede poner o quitar.
 - **Animado:** las velas parpadean, el humo del copal sube y el papel picado se mueve con el viento. Se queda quieto si tienes activado "Reducir movimiento".
 - **En el escritorio:** el altar también se puede dejar pegado al fondo del escritorio, detrás de las ventanas, y moverlo a donde quieras.
 - **Cuenta regresiva** al 1 y 2 de noviembre.
+
+## Cómo se ve
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/altar1.png" width="300" alt="El panel de la barra de menú con un altar de 7 niveles"></td>
+    <td align="center"><img src="docs/altar2.png" width="300" alt="El panel con la configuración abierta: niveles, ofrendas y nombres"></td>
+  </tr>
+  <tr>
+    <td align="center">El panel de la barra de menú</td>
+    <td align="center">Configurando niveles, ofrendas y nombres</td>
+  </tr>
+</table>
+
+<p align="center">
+  <img src="docs/altar3.png" alt="El altar como widget, pegado al fondo del escritorio">
+  <br>
+  Como widget en el escritorio
+</p>
 
 ## Instalar
 
@@ -62,7 +61,7 @@ tools/build.sh     # compila build/Altar.app
 tools/package.sh   # pruebas + compilación + dist/Altar-<versión>.dmg
 ```
 
-El icono se genera con `tools/make-icon.swift` (las instrucciones están al inicio del archivo) y se guarda en `Resources/AppIcon.icns`.
+El icono se genera con `tools/make-icon.swift` y se guarda en `Resources/AppIcon.icns`. El GIF de arriba lo genera `tools/make-gif.swift` con el mismo renderer que usa la app. Las instrucciones de los dos están al inicio de cada archivo.
 
 ## Cómo está hecho
 
