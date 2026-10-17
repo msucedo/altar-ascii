@@ -55,30 +55,43 @@ enum Arte {
     static let largoNombre = 12
     static let maxNombres = 6
 
-    static let vela = Pieza([" ) ", "| |", "|_|"])
+    /// La llama cambia de forma en una secuencia irregular, para que no se vea como un reloj.
+    static let llamas: [Character] = [")", ")", "(", ")", "'", "(", ")", "|"]
+
+    static func vela(frame: Int) -> Pieza {
+        Pieza([" \(llamas[frame % llamas.count]) ", "| |", "|_|"])
+    }
+
     static let flor = Pieza([" @ ", "\\|/"])
     static let pan = Pieza([" .x. ", "(___)"])
     static let calaverita = Pieza([" .-. ", "(o.o)", " |=| "])
     static let comida = Pieza(["(~~~)", "\\___/"])
     static let agua = Pieza(["|~|", "|_|"])
     static let sal = Pieza([".:.", "\\_/"])
-    static let copal = Pieza(["  ~ ", " ~  ", "\\##/"])
+    /// El humo del copal: cada fila toma la forma que tenía la de abajo un momento antes, así parece que sube.
+    static let humo = ["  ~ ", " (  ", "  ) ", " ~  "]
+
+    static func copal(frame: Int) -> Pieza {
+        Pieza([humo[(frame + 1) % humo.count], humo[frame % humo.count], "\\##/"])
+    }
 
     static func retrato(_ nombre: String) -> Pieza {
         let borde = String(repeating: "-", count: nombre.count)
         return Pieza([".-" + borde + "-.", "| " + nombre + " |", "'-" + borde + "-'"])
     }
 
-    /// Una tira de banderitas colgando de un hilo, del ancho que se pida.
-    static func papelPicado(ancho: Int) -> [String] {
+    /// Una tira de banderitas colgando de un hilo, del ancho que se pida. Con `viento` las
+    /// banderitas se recorren un carácter, como si el aire las moviera.
+    static func papelPicado(ancho: Int, viento: Bool) -> [String] {
         let motivos = ["><", "::", "<>", "**"]
         let cuantas = (ancho - 1) / 5
         let banderas = (0..<cuantas).map { "|" + motivos[$0 % motivos.count] + "|" }
         let picos = Array(repeating: "\\/\\/", count: cuantas)
+        let sangria = viento ? "  " : " "
         return [
             "o" + String(repeating: "-", count: ancho - 2) + "o",
-            " " + banderas.joined(separator: " "),
-            " " + picos.joined(separator: " "),
+            sangria + banderas.joined(separator: " "),
+            sangria + picos.joined(separator: " "),
         ]
     }
 

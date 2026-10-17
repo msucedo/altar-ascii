@@ -6,8 +6,8 @@ import Foundation
 struct RenderCheck {
     static func main() {
         var fallos = 0
-        func revisar(_ config: AltarConfig, _ caso: String, imprimir: Bool = false) {
-            let lineas = AltarRenderer.render(config)
+        func revisar(_ config: AltarConfig, _ caso: String, imprimir: Bool = false, frame: Int = 0) {
+            let lineas = AltarRenderer.render(config, frame: frame)
             if imprimir {
                 print("\(caso)")
                 lineas.forEach { print("  " + $0) }
@@ -34,6 +34,10 @@ struct RenderCheck {
             revisar(AltarConfig(niveles: niveles, ofrendas: []), "\(niveles.nombre) sin ofrendas")
             revisar(AltarConfig(niveles: niveles, nombres: ["Maximiliano Hernández", "Ana", "José", "Rosa", "Pedro", "Luz", "Sobra"]),
                     "\(niveles.nombre) con muchos nombres")
+            // La animación no debe mover el ancho de ninguna línea en ningún fotograma.
+            for frame in 0..<48 {
+                revisar(AltarConfig(niveles: niveles, nombres: familia), "\(niveles.nombre) fotograma \(frame)", frame: frame)
+            }
             for ofrenda in Ofrenda.allCases {
                 revisar(AltarConfig(niveles: niveles, ofrendas: [ofrenda], nombres: familia),
                         "\(niveles.nombre) solo \(ofrenda.nombre)")

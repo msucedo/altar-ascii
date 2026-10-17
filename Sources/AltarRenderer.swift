@@ -19,6 +19,7 @@ enum AltarRenderer {
     /// Un escalón vacío conserva al menos este alto.
     static let filasMinimas = 2
 
+    /// `frame` avanza unas cuatro veces por segundo; cada pieza animada decide qué dibujo le toca.
     static func render(_ config: AltarConfig, frame: Int = 0) -> [String] {
         let n = config.niveles.rawValue
         // Cuánto se mete cada escalón respecto al de abajo, por lado. Con 7 niveles hay
@@ -26,11 +27,12 @@ enum AltarRenderer {
         let paso = min(pasoMaximo, (ancho - anchoMinimoArriba) / (2 * (n - 1)))
         // Anchos de arriba hacia abajo; el último ocupa todo el ancho.
         let anchos = (0..<n).map { ancho - 2 * paso * (n - 1 - $0) }
-        let contenido = repartir(config)
+        let contenido = repartir(config, frame: frame)
 
         var lineas: [String] = []
         if config.ofrendas.contains(.papelPicado) {
-            lineas += Arte.papelPicado(ancho: ancho - 2).map(centrar)
+            // El viento sopla un rato cada pocos segundos.
+            lineas += Arte.papelPicado(ancho: ancho - 2, viento: frame % 12 >= 9).map(centrar)
         }
         lineas.append(centrar(" " + repetir("_", anchos[0] - 2) + " "))
         for (k, w) in anchos.enumerated() {
@@ -55,7 +57,7 @@ enum AltarRenderer {
 
     /// Decide qué piezas van en cada escalón (índice 0 = arriba) y en qué orden de izquierda a derecha.
     /// Los retratos van en el cielo; el agua, la sal y el copal, abajo, en la tierra.
-    static func repartir(_ config: AltarConfig) -> [[Pieza]] {
+    static func repartir(_ config: AltarConfig, frame: Int = 0) -> [[Pieza]] {
         let n = config.niveles.rawValue
         let abajo = n - 1
         // Con 7 niveles las ofrendas se reparten por los pasos intermedios.
@@ -68,8 +70,10 @@ enum AltarRenderer {
         let tiene = config.ofrendas.contains
         if tiene(.velas) {
             // Con 3 o más niveles el cielo queda para los retratos y las velas bajan un escalón.
-            for nivel in Set([n == 2 ? 0 : 1, abajo]) {
-                lugares += [(nivel, 1, Arte.vela), (nivel, 9, Arte.vela)]
+            // Cada vela va desfasada de las demás, para que no parpadeen todas al mismo tiempo.
+            for (i, nivel) in Set([n == 2 ? 0 : 1, abajo]).sorted().enumerated() {
+                lugares += [(nivel, 1, Arte.vela(frame: frame + i * 5)),
+                            (nivel, 9, Arte.vela(frame: frame + i * 5 + 3))]
             }
         }
         if tiene(.retratos) {
@@ -84,7 +88,7 @@ enum AltarRenderer {
         if tiene(.pan) { lugares.append((nivelPan, 3, Arte.pan)) }
         if tiene(.calaveritas) { lugares.append((nivelCalaveritas, 5, Arte.calaverita)) }
         if tiene(.comida) { lugares.append((nivelComida, 6, Arte.comida)) }
-        if tiene(.copal) { lugares.append((abajo, 7, Arte.copal)) }
+        if tiene(.copal) { lugares.append((abajo, 7, Arte.copal(frame: frame))) }
         if tiene(.sal) { lugares.append((abajo, 8, Arte.sal)) }
 
         // sorted es estable: los retratos conservan el orden en que se agregaron los nombres.
