@@ -6,6 +6,7 @@ import SwiftUI
 struct AltarApp: App {
     // Por ahora la configuración vive solo mientras la app está abierta; se guardará más adelante.
     @State private var config = AltarConfig()
+    @State private var configurando = false
 
     var body: some Scene {
         MenuBarExtra("Altar", systemImage: "flame") {
@@ -14,19 +15,16 @@ struct AltarApp: App {
                     .font(.headline)
                 AltarView(config: config)
                     .frame(maxWidth: .infinity)
-                Picker("Niveles", selection: $config.niveles) {
-                    ForEach(Niveles.allCases) { Text("\($0.rawValue)").tag($0) }
+                DisclosureGroup("Configurar", isExpanded: $configurando) {
+                    SettingsView(config: $config)
+                        .padding(.top, 8)
                 }
-                .pickerStyle(.segmented)
-                Text(config.niveles.significado.prefix(1).uppercased() + config.niveles.significado.dropFirst())
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
                 Divider()
                 Button("Salir") { NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
             }
             .padding(16)
-            .frame(width: 360)
+            .frame(width: 380)
         }
         .menuBarExtraStyle(.window)
     }

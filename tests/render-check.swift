@@ -1,26 +1,42 @@
 import Foundation
 
-// Imprime el altar con cada número de niveles y comprueba que todas las líneas
-// midan exactamente el ancho fijo y que el alto sea el esperado.
+// Imprime el altar con cada número de niveles y comprueba que todas las líneas midan
+// exactamente el ancho fijo, con y sin ofrendas, y con nombres largos o muchos nombres.
 @main
 struct RenderCheck {
     static func main() {
         var fallos = 0
-        for niveles in Niveles.allCases {
-            let lineas = AltarRenderer.render(AltarConfig(niveles: niveles))
-            print("\(niveles.nombre): \(niveles.significado)")
-            lineas.forEach { print("  " + $0) }
-            print()
-
+        func revisar(_ config: AltarConfig, _ caso: String, imprimir: Bool = false) {
+            let lineas = AltarRenderer.render(config)
+            if imprimir {
+                print("\(caso)")
+                lineas.forEach { print("  " + $0) }
+                print()
+            }
             let mal = lineas.filter { $0.count != AltarRenderer.ancho }
             if !mal.isEmpty {
-                print("FALLA: \(mal.count) líneas no miden \(AltarRenderer.ancho)")
+                print("FALLA (\(caso)): \(mal.count) líneas no miden \(AltarRenderer.ancho)")
+                mal.forEach { print("  [\($0)]") }
                 fallos += 1
             }
-            let alto = 1 + niveles.rawValue * (AltarRenderer.filasPorNivel + 1)
-            if lineas.count != alto {
-                print("FALLA: alto \(lineas.count), se esperaba \(alto)")
+            let texto = lineas.joined()
+            for nombre in AltarRenderer.nombresLimpios(config.nombres)
+            where config.ofrendas.contains(.retratos) && !texto.contains(nombre) {
+                print("FALLA (\(caso)): falta el nombre \(nombre)")
                 fallos += 1
+            }
+        }
+
+        let familia = ["Abuela Lupe", "Tío Beto"]
+        for niveles in Niveles.allCases {
+            revisar(AltarConfig(niveles: niveles, nombres: familia),
+                    "\(niveles.nombre): \(niveles.significado)", imprimir: true)
+            revisar(AltarConfig(niveles: niveles, ofrendas: []), "\(niveles.nombre) sin ofrendas")
+            revisar(AltarConfig(niveles: niveles, nombres: ["Maximiliano Hernández", "Ana", "José", "Rosa", "Pedro", "Luz", "Sobra"]),
+                    "\(niveles.nombre) con muchos nombres")
+            for ofrenda in Ofrenda.allCases {
+                revisar(AltarConfig(niveles: niveles, ofrendas: [ofrenda], nombres: familia),
+                        "\(niveles.nombre) solo \(ofrenda.nombre)")
             }
         }
         print(fallos == 0 ? "ok" : "\(fallos) fallos")
