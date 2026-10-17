@@ -3,10 +3,22 @@ import Foundation
 // Convierte la configuración del altar en líneas de texto. Es una función pura: no sabe nada
 // de la interfaz, así que la misma salida sirve para el panel, la ventana flotante y la prueba.
 
-struct AltarConfig: Equatable {
+struct AltarConfig: Equatable, Codable {
     var niveles: Niveles = .tres
     var ofrendas: Set<Ofrenda> = Set(Ofrenda.allCases)
     var nombres: [String] = []
+}
+
+extension AltarConfig {
+    /// Cada campo que falte en lo guardado toma su valor por omisión. Así, cuando se agregue
+    /// un campo nuevo, la configuración que ya estaba guardada se sigue pudiendo leer.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let base = AltarConfig()
+        niveles = try c.decodeIfPresent(Niveles.self, forKey: .niveles) ?? base.niveles
+        ofrendas = try c.decodeIfPresent(Set<Ofrenda>.self, forKey: .ofrendas) ?? base.ofrendas
+        nombres = try c.decodeIfPresent([String].self, forKey: .nombres) ?? base.nombres
+    }
 }
 
 enum AltarRenderer {

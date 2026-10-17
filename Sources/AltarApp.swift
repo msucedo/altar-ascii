@@ -4,8 +4,8 @@ import SwiftUI
 // el contenido se abre como un panel translúcido, igual que el Centro de Control.
 @main
 struct AltarApp: App {
-    // Por ahora la configuración vive solo mientras la app está abierta; se guardará más adelante.
-    @State private var config = AltarConfig()
+    // El store guarda la configuración cada vez que cambia, y la recupera al abrir la app.
+    @StateObject private var store = AltarStore()
     @State private var configurando = false
 
     var body: some Scene {
@@ -13,10 +13,10 @@ struct AltarApp: App {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Altar de muertos")
                     .font(.headline)
-                AltarView(config: config)
+                AltarView(config: store.config)
                     .frame(maxWidth: .infinity)
                 DisclosureGroup("Configurar", isExpanded: $configurando) {
-                    SettingsView(config: $config)
+                    SettingsView(config: $store.config)
                         .padding(.top, 8)
                 }
                 Divider()
