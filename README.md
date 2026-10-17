@@ -1,0 +1,73 @@
+# Altar
+
+Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac.
+
+```
+ o--------------------------------------------o
+  |><| |::| |<>| |**| |><| |::| |<>| |**| |><|
+  \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/ \/\/
+         ______________________________
+        | .-------------. .----------. |
+        | | Abuela Lupe | | Tío Beto | |
+        | '-------------' '----------' |
+     ___|______________________________|___
+    |      )          .-.          )       |
+    |  @  | |   .x.  (o.o) (~~~)  | |  @   |
+    | \|/ |_|  (___)  |=|  \___/  |_| \|/  |
+ ___|______________________________________|___
+|          (           (            )          |
+|    @    | |   |~|     ~    .:.   | |    @    |
+|   \|/   |_|   |_|   \##/   \_/   |_|   \|/   |
+|______________________________________________|
+                    *.*.*.*
+                  .*.*.*.*.*.
+                *.*.*.*.*.*.*.*
+```
+
+- **Niveles:** 2 (el cielo y la tierra), 3 (con el inframundo) o 7 (los siete pasos hacia el descanso).
+- **Ofrendas:** papel picado, retratos con los nombres de tus seres queridos, velas, cempasúchil, pan de muerto, calaveritas, comida favorita, agua, sal y copal. Cada una se puede poner o quitar.
+- **Animado:** las velas parpadean, el humo del copal sube y el papel picado se mueve con el viento. Se queda quieto si tienes activado "Reducir movimiento".
+- **En el escritorio:** el altar también se puede dejar pegado al fondo del escritorio, detrás de las ventanas, y moverlo a donde quieras.
+- **Cuenta regresiva** al 1 y 2 de noviembre.
+
+## Instalar
+
+1. Descarga `Altar-x.y.dmg` de la sección [Releases](../../releases).
+2. Ábrelo y arrastra **Altar** a **Aplicaciones**.
+3. La primera vez macOS va a avisar que no puede verificar al desarrollador (ver abajo).
+4. Busca la flama en la barra de menú.
+
+Requiere **macOS 13 (Ventura) o más nuevo** y una Mac con **Apple Silicon** (M1 o posterior).
+
+### Cómo abrirla la primera vez
+
+La app no está firmada con una cuenta de Apple Developer, que cuesta 99 USD al año, así que macOS la bloquea la primera vez. Para permitirla, una sola vez:
+
+- **macOS 15 (Sequoia) o más nuevo:** abre la app una vez, luego ve a *Ajustes del Sistema → Privacidad y seguridad*, baja hasta el aviso de "Altar" y elige **Abrir igualmente**.
+- **macOS 13 y 14:** en Aplicaciones, haz clic derecho sobre Altar → **Abrir** → **Abrir**.
+- **Desde Terminal**, en cualquier versión:
+  ```sh
+  xattr -dr com.apple.quarantine /Applications/Altar.app
+  ```
+
+El código está completo en este repositorio, por si quieres revisarlo o compilarlo tú.
+
+## Compilar
+
+Solo se necesitan las Command Line Tools de Xcode (`xcode-select --install`); no hace falta Xcode ni SwiftPM.
+
+```sh
+tools/check.sh     # pruebas sin interfaz: el dibujo, el guardado y el calendario
+tools/build.sh     # compila build/Altar.app
+tools/package.sh   # pruebas + compilación + dist/Altar-<versión>.dmg
+```
+
+El icono se genera con `tools/make-icon.swift` (las instrucciones están al inicio del archivo) y se guarda en `Resources/AppIcon.icns`.
+
+## Cómo está hecho
+
+- `Sources/AltarRenderer.swift`: convierte la configuración en líneas de texto. Es una función pura, así que la misma salida sirve para el panel, el escritorio y las pruebas.
+- `Sources/Pieces.swift`: el arte ASCII de cada ofrenda y sus fotogramas de animación.
+- `Sources/AltarApp.swift`: el icono y el panel de la barra de menú (`MenuBarExtra` con estilo `.window`).
+- `Sources/FloatingPanel.swift`: el altar en el escritorio (un `NSPanel` sin borde, al nivel de los iconos).
+- `Sources/AltarStore.swift`: guarda la configuración como JSON en `UserDefaults`.
