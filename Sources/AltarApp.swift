@@ -1,3 +1,4 @@
+import Combine
 import ServiceManagement
 import SwiftUI
 
@@ -51,7 +52,9 @@ struct PanelView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            AltarView(config: store.config, animar: animacion.pantallaActiva)
+            // Al cerrar el panel, macOS no destruye su ventana: solo la saca de la pantalla, y el
+            // altar se seguiría dibujando 4 veces por segundo sin que nadie lo vea.
+            AltarView(config: store.config, animar: animacion.pantallaActiva && animacion.panelVisible)
                 .frame(maxWidth: .infinity)
                 .background(medirAlto { altoAltar = $0 })
             Button {
@@ -90,6 +93,7 @@ struct PanelView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         // Salir sigue funcionando con ⌘Q aunque el botón esté oculto.
         .background(Button("") { NSApplication.shared.terminate(nil) }.keyboardShortcut("q").hidden())
+        .background(VigilaVentana { animacion.panelVisible = $0 })
         .padding(16)
         .frame(width: 380)
     }
@@ -149,5 +153,43 @@ struct PanelView: View {
             errorDeInicio = "Apruébalo en Ajustes del Sistema > General > Ítems de inicio."
         }
         alIniciarSesion = SMAppService.mainApp.status == .enabled
+    }
+}
+
+/// Avisa si la ventana que la contiene se ve en pantalla. SwiftUI no da acceso a la ventana del
+/// MenuBarExtra, así que esta vista invisible la encuentra y escucha sus cambios, igual que el
+/// widget escucha los de su NSPanel.
+private struct VigilaVentana: NSViewRepresentable {
+    let alCambiar: (Bool) -> Void
+
+    func makeNSView(context: Context) -> Vista {
+        let vista = Vista()
+        vista.alCambiar = alCambiar
+        return vista
+    }
+
+    func updateNSView(_ vista: Vista, context: Context) {
+        vista.alCambiar = alCambiar
+    }
+
+    final class Vista: NSView {
+        var alCambiar: ((Bool) -> Void)?
+        private var observacion: AnyCancellable?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else {
+                observacion = nil
+                return
+            }
+            observacion = NotificationCenter.default
+                .publisher(for: NSWindow.didChangeOcclusionStateNotification, object: window)
+                .sink { [weak self] _ in self?.avisar() }
+            avisar()
+        }
+
+        private func avisar() {
+            alCambiar?(window?.occlusionState.contains(.visible) ?? false)
+        }
     }
 }

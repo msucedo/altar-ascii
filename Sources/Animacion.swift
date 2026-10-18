@@ -8,6 +8,8 @@ final class Animacion: ObservableObject {
     @Published private(set) var pantallaActiva = true
     /// Lo actualiza FloatingAltar: false cuando el widget queda completamente tapado.
     @Published var widgetVisible = true
+    /// Lo actualiza PanelView: true solo mientras el panel de la barra de menú está abierto.
+    @Published var panelVisible = false
 
     private var bloqueada = false
     private var dormida = false
