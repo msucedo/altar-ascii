@@ -34,8 +34,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct PanelView: View {
     @ObservedObject var store: AltarStore
     @ObservedObject var animacion: Animacion
-    /// Si están a la vista las opciones de abajo del altar. Empieza cerrado y se recuerda.
-    @AppStorage("panelAbierto") private var abierto = false
+    /// Si están a la vista las opciones de abajo del altar. Cada vez que se abre el panel empiezan
+    /// cerradas, aunque se hayan dejado abiertas la vez anterior.
+    @State private var abierto = false
     @State private var altoAltar: CGFloat = 0
     @State private var altoOpciones: CGFloat = 0
     // Si la app abre al iniciar sesión lo sabe el sistema, no la configuración del altar,
@@ -93,7 +94,12 @@ struct PanelView: View {
         .frame(maxHeight: .infinity, alignment: .top)
         // Salir sigue funcionando con ⌘Q aunque el botón esté oculto.
         .background(Button("") { NSApplication.shared.terminate(nil) }.keyboardShortcut("q").hidden())
-        .background(VigilaVentana { animacion.panelVisible = $0 })
+        // La vista del panel sobrevive a cerrarlo, así que las opciones se cierran al esconderse;
+        // como ya no está en pantalla, no se ve cómo se encoge.
+        .background(VigilaVentana { visible in
+            animacion.panelVisible = visible
+            if !visible { abierto = false }
+        })
         .padding(16)
         .frame(width: 380)
     }
