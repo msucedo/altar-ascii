@@ -15,7 +15,7 @@ Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac, p
 <table>
   <tr>
     <td align="center"><img src="docs/altar1.png" width="300" alt="El panel de la barra de menú con un altar de 7 niveles"></td>
-    <td align="center"><img src="docs/altar2.png" width="300" alt="El panel con la configuración abierta: niveles, ofrendas y nombres"></td>
+    <td align="center"><img src="docs/altar2.png" width="300" alt="El panel con las opciones abiertas: niveles y ofrendas"></td>
   </tr>
   <tr>
     <td align="center">El panel de la barra de menú</td>
@@ -34,7 +34,7 @@ Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac, p
 1. Descarga `Altar-x.y.dmg` de la sección [Releases](../../releases).
 2. Ábrelo y arrastra **Altar** a **Aplicaciones**.
 3. La primera vez macOS va a avisar que no puede verificar al desarrollador (ver abajo).
-4. Busca la flama en la barra de menú.
+4. Busca la flor de cempasúchil 🌼 en la barra de menú.
 
 Requiere **macOS 13 (Ventura) o más nuevo** y una Mac con **Apple Silicon** (M1 o posterior).
 

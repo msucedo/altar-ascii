@@ -8,8 +8,10 @@ struct AltarApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegado
 
     var body: some Scene {
-        MenuBarExtra("Altar", systemImage: "flame") {
+        MenuBarExtra {
             PanelView(store: delegado.store, animacion: delegado.animacion)
+        } label: {
+            Text("🌼")
         }
         .menuBarExtraStyle(.window)
     }
