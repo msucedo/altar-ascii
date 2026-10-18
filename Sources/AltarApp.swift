@@ -59,14 +59,9 @@ struct PanelView: View {
                 .frame(maxWidth: .infinity)
                 .background(medirAlto { altoAltar = $0 })
             Button {
-                // Abrir se anima; cerrar no. Al cerrar, la ventana se encoge de golpe y, si las
-                // opciones siguieran saliendo con animación, el contenido no cabría por un instante
-                // y el altar parpadearía.
-                if abierto {
-                    abierto = false
-                } else {
-                    withAnimation(.easeInOut(duration: 0.2)) { abierto = true }
-                }
+                // Sin withAnimation: la ventana del MenuBarExtra no sabe cambiar de tamaño con
+                // animación y, mientras lo intenta, el panel se ve negro un instante.
+                abierto.toggle()
             } label: {
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(abierto ? 180 : 0))
