@@ -2,6 +2,8 @@
 
 Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac, para honrar la memoria de tus seres queridos.
 
+El Día de Muertos es una tradición mexicana que se celebra el 1 y 2 de noviembre, cuando se cree que las almas de los difuntos vuelven a visitar a sus familias. Une raíces indígenas con las fiestas católicas de Todos los Santos y los Fieles Difuntos: el día 1 se recuerda a los niños y el 2 a los adultos. Para recibirlos, en las casas se pone un altar con sus retratos, su comida favorita, velas que alumbran el camino y flores de cempasúchil, cuyo color y aroma los guían de regreso. No es un día de luto, sino de recordar con cariño a quienes ya no están. Desde 2008, la UNESCO la reconoce como Patrimonio Cultural Inmaterial de la Humanidad.
+
 ![El altar animado: velas que parpadean, humo de copal y papel picado con viento](docs/altar.gif)
 
 - **Niveles:** 2 (el cielo y la tierra), 3 (con el inframundo) o 7 (los siete pasos hacia el descanso).
