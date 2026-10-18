@@ -1,4 +1,4 @@
-# Altar
+# Altar.app
 
 Un altar de muertos dibujado en ASCII que vive en la barra de menú de la Mac, para honrar la memoria de tus seres queridos.
 
