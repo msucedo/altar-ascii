@@ -53,10 +53,19 @@ struct PanelView: View {
                 .frame(maxWidth: .infinity)
                 .background(medirAlto { altoAltar = $0 })
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) { abierto.toggle() }
+                // Abrir se anima; cerrar no. Al cerrar, la ventana se encoge de golpe y, si las
+                // opciones siguieran saliendo con animación, el contenido no cabría por un instante
+                // y el altar parpadearía.
+                if abierto {
+                    abierto = false
+                } else {
+                    withAnimation(.easeInOut(duration: 0.2)) { abierto = true }
+                }
             } label: {
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(abierto ? 180 : 0))
+                    // La flecha gira en los dos sentidos; su giro no cambia el tamaño de la ventana.
+                    .animation(.easeInOut(duration: 0.2), value: abierto)
                     .frame(maxWidth: .infinity, minHeight: 18)
                     .contentShape(Rectangle())
             }
@@ -71,8 +80,12 @@ struct PanelView: View {
                         .background(medirAlto { altoOpciones = $0 })
                 }
                 .frame(height: min(altoOpciones, altoMaximoOpciones))
+                .transition(.opacity)
             }
         }
+        // Anclado arriba: si la ventana tarda un instante en ajustarse, el altar se queda pegado
+        // a la barra de menú en lugar de moverse.
+        .frame(maxHeight: .infinity, alignment: .top)
         // Salir sigue funcionando con ⌘Q aunque el botón esté oculto.
         .background(Button("") { NSApplication.shared.terminate(nil) }.keyboardShortcut("q").hidden())
         .padding(16)
