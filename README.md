@@ -72,3 +72,7 @@ El icono se genera con `tools/make-icon.swift` y se guarda en `Resources/AppIcon
 - `Sources/AltarApp.swift`: el icono y el panel de la barra de menú (`MenuBarExtra` con estilo `.window`).
 - `Sources/FloatingPanel.swift`: el altar en el escritorio (un `NSPanel` sin borde, al nivel de los iconos).
 - `Sources/AltarStore.swift`: guarda la configuración como JSON en `UserDefaults`.
+
+## Licencia
+
+MIT. Ver [LICENSE](LICENSE).
