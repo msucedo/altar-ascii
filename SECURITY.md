@@ -19,3 +19,5 @@ Es un proyecto personal, así que la respuesta puede tardar unos días. Cuando e
 ## Alcance
 
 Altar no se conecta a internet ni recopila datos. Solo guarda su configuración (niveles, ofrendas y nombres) en las preferencias de macOS de tu usuario.
+
+Los DMG de Releases van firmados con Developer ID y notarizados por Apple. Si macOS dice que no puede verificar una copia de Altar, no la abras: bájala de nuevo de Releases.

@@ -33,25 +33,13 @@ El Día de Muertos es una tradición mexicana que se celebra el 1 y 2 de noviemb
 
 ## Instalar
 
-1. Descarga `Altar-x.y.dmg` de la sección [Releases](../../releases).
+1. Descarga `Altar-x.y.z.dmg` de la sección [Releases](../../releases).
 2. Ábrelo y arrastra **Altar** a **Aplicaciones**.
-3. La primera vez macOS va a avisar que no puede verificar al desarrollador (ver abajo).
-4. Busca la flor de cempasúchil 🌼 en la barra de menú.
+3. Ábrela desde Aplicaciones y busca la flor de cempasúchil 🌼 en la barra de menú.
 
-Requiere **macOS 13 (Ventura) o más nuevo** y una Mac con **Apple Silicon** (M1 o posterior).
+La app está firmada con Developer ID y notarizada por Apple, así que abre con doble clic, sin avisos.
 
-### Cómo abrirla la primera vez
-
-La app no está firmada con una cuenta de Apple Developer, que cuesta 99 USD al año, así que macOS la bloquea la primera vez. Para permitirla, una sola vez:
-
-- **macOS 15 (Sequoia) o más nuevo:** abre la app una vez, luego ve a *Ajustes del Sistema → Privacidad y seguridad*, baja hasta el aviso de "Altar" y elige **Abrir igualmente**.
-- **macOS 13 y 14:** en Aplicaciones, haz clic derecho sobre Altar → **Abrir** → **Abrir**.
-- **Desde Terminal**, en cualquier versión:
-  ```sh
-  xattr -dr com.apple.quarantine /Applications/Altar.app
-  ```
-
-El código está completo en este repositorio, por si quieres revisarlo o compilarlo tú.
+Requiere **macOS 13 (Ventura) o más nuevo**, en una Mac con Apple Silicon o con Intel.
 
 ## Compilar
 
@@ -59,8 +47,14 @@ Solo se necesitan las Command Line Tools de Xcode (`xcode-select --install`); no
 
 ```sh
 tools/check.sh     # pruebas sin interfaz: el dibujo, el guardado y el calendario
-tools/build.sh     # compila build/Altar.app
-tools/package.sh   # pruebas + compilación + dist/Altar-<versión>.dmg
+tools/build.sh     # compila build/Altar.app, Universal y firmada ad hoc
+```
+
+`build.sh` no necesita certificado. Para publicar se necesita la cuenta de Apple Developer (los pasos están en [appstore/PUBLICAR.md](appstore/PUBLICAR.md)):
+
+```sh
+tools/package.sh           # DMG firmado con Developer ID y notarizado, para Releases
+tools/package-appstore.sh  # .pkg con sandbox para la Mac App Store
 ```
 
 El icono se genera con `tools/make-icon.swift` y se guarda en `Resources/AppIcon.icns`. El GIF de arriba lo genera `tools/make-gif.swift` con el mismo renderer que usa la app. Las instrucciones de los dos están al inicio de cada archivo.
