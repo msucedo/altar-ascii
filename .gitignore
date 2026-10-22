@@ -1,3 +1,7 @@
 build/
 dist/
 *.provisionprofile
+appstore/RESPUESTA-REVISION.md
+tools/compress-video.swift
+appstore/LISTING.md
+appstore/PUBLICAR.md

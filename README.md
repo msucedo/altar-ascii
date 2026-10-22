@@ -50,7 +50,7 @@ tools/check.sh     # pruebas sin interfaz: el dibujo, el guardado y el calendari
 tools/build.sh     # compila build/Altar.app, Universal y firmada ad hoc
 ```
 
-`build.sh` no necesita certificado. Para publicar se necesita la cuenta de Apple Developer (los pasos están en [appstore/PUBLICAR.md](appstore/PUBLICAR.md)):
+`build.sh` no necesita certificado. Para publicar se necesita la cuenta de Apple Developer:
 
 ```sh
 tools/package.sh           # DMG firmado con Developer ID y notarizado, para Releases
